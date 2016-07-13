@@ -1,0 +1,31 @@
+{% load staticfiles %}
+<!-- load staticfiles tells Django to load the staticfiles template
+      that are provided by the django contrib.staticfiles application.
+
+      Sfter loading it, we will be able to use the 'static'  template filter
+      throughout this template, with this template filter, we can include css file.
+ -->
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link href="{% static 'css/blog.css' %}" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+      <div class="row">
+        <div id="content" class="col-md-8">
+            {% block content %} {% endblock %}
+        </div>
+        <div id="sidebar" class="col-md-3 col-md-offset-1 well" style="margin-top: 69px;">
+            <h2>My blog</h2>
+            <p>This is my blog.</p>
+        </div>
+      </div>
+    </div>
+</body>
+
+</html>
