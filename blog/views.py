@@ -5,27 +5,26 @@ from django.views.generic import ListView
 from .forms import EmailPostForm
 
 
-# mes problemes: 1. pagination ne marche pas (include in template)
-# class PostListView(ListView):
-#     queryset = Post.published.all()
-#     context_object_name = 'posts'
-#     paginate_by = 2
-#     template_name = 'blog/post/list.html'
+class PostListView(ListView):
+    queryset = Post.published.all()
+    context_object_name = 'posts'
+    paginate_by = 2
+    template_name = 'blog/post/list.html'
 
 
-def post_list(request):
-    object_list = Post.published.all()
-    paginator = Paginator(object_list, 1)  # posts in each page
-    page = request.GET.get('page', 1)  # this indicate the current page number
-    try:
-        posts = paginator.page(page)  # obtain the object for the desired page by calling page() method
-    except PageNotAnInteger:
-        # if page is not an integer deliver the first page
-        posts = paginator.page(1)
-        # if the page is out of range deliver the last page of results
-    except EmptyPage:
-        posts = paginator.page(paginator.num_pages)
-    return render(request, 'blog/post/list.html', {'posts': posts})
+# def post_list(request):
+#     object_list = Post.published.all()
+#     paginator = Paginator(object_list, 1)  # posts in each page
+#     page = request.GET.get('page', 1)  # this indicate the current page number
+#     try:
+#         posts = paginator.page(page)  # obtain the object for the desired page by calling page() method
+#     except PageNotAnInteger:
+#         # if page is not an integer deliver the first page
+#         posts = paginator.page(1)
+#         # if the page is out of range deliver the last page of results
+#     except EmptyPage:
+#         posts = paginator.page(paginator.num_pages)
+#     return render(request, 'blog/post/list.html', {'posts': posts})
 
 
 def post_detail(request, year, month, day, post):
