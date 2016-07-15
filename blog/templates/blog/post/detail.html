@@ -3,8 +3,15 @@
 
 {% block content %}
   <h1>{{ post.title }}</h1>
-  <p class="date">
+  <small class="date" style="color:#777777">
   Published {{ post.publish }} by {{ post.author }}
-  </p>
+</small>
+  <hr/>
+  <img src="{{post.img_link}}" style="width:320px;height:200px;">
 {{ post.body|linebreaks }}
+<p>
+  <a href="{% url "blog:post_share" post.id %}">
+  Share this post
+  </a>
+</p>
 {% endblock %}

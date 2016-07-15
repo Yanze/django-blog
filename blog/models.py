@@ -18,6 +18,7 @@ class Post(models.Model):
         ('published', 'Published'),
     )
     title = models.CharField(max_length=250)
+    img_link = models.CharField(default='http://f.tqn.com/y/cats/1/S/i/O/4/AngryCat98125846-Barbara-Singer2040x1471.jpg', max_length=250)
     slug = models.SlugField(max_length=250, unique_for_date='publish')
     author = models.ForeignKey(User, related_name='blog_posts')
     body = models.TextField()
