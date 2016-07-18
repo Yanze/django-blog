@@ -1,8 +1,8 @@
-from django.shortcuts import render, get_object_or_404
-from .models import Post
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.shortcuts import render, get_object_or_404, HttpResponseRedirect, redirect
+from .models import Post, Comment
+# from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic import ListView
-from .forms import EmailPostForm
+from .forms import EmailPostForm, CommentForm
 from django.core.mail import send_mail
 
 
@@ -46,7 +46,20 @@ def post_detail(request, year, month, day, post):
         raise Http404("No MyModel matches the given query.")
     """
     post = get_object_or_404(Post, slug=post)
-    return render(request, 'blog/post/detail.html', {'post': post})
+    comments = post.comments.filter(active=True)
+    if request.method == 'POST':
+        comment_form = CommentForm(request.POST)
+        if comment_form.is_valid():
+            # create comment object but don't save to database
+            new_comment = comment_form.save(commit=False)
+            # assign the current post to the comment
+            new_comment.post = post
+            # save the comment to the database
+            new_comment.save()
+            # return redirect('post_detail')
+    else:
+        comment_form = CommentForm()
+    return render(request, 'blog/post/detail.html', {'post': post, 'comments': comments, 'comment_form': comment_form})
 
 
 def post_share(request, post_id):
@@ -55,7 +68,9 @@ def post_share(request, post_id):
     if request.method == 'POST':
         form = EmailPostForm(request.POST)
         if form.is_valid():
+            # form.cleaned_data is always invoked after .is_valid(), otherwise will raise AttributeError
             cd = form.cleaned_data
+            # then do something with data in cd
             post_url = request.build_absolute_uri(post.get_absolute_url())
             subject = '{}({}) recommends you reading "{}"'.format(cd['name'], cd['email'], post.title)
             message = 'Read "{}" at {}\n\n{}\s comments: {}'.format(post.title, post_url, cd['name'], cd['comments'])

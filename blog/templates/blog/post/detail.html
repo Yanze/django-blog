@@ -9,8 +9,41 @@
   <hr/>
   <img src="{{post.img_link}}" style="width:320px;height:200px;">
 {{ post.body|linebreaks }}
+
+{% with comments.count as total_comments %}
+  <h2>
+    {{ total_comments }} comment{{ total_comments|pluralize }}
+  </h2>
+{% endwith %}
+
+
+{% for comment in comments %}
+<div class="comment">
+<small class="info" style="color:#8f8f8f">
+  Comment {{ forloop.counter }} by {{ comment.name }}
+  {{ comment.created }}
+</small>
+  {{ comment.body|linebreaks }}
+</div>
+{% empty %}
+  <p>There are no comments yet.</p>
+{% endfor %}
+
+
+{% if new_comment %}
+<h2>Your comment has been added.</h2>
+{% else %}
+<h2>Add a new comment</h2>
+<form action="." method="post">
+{{ comment_form.as_p }}
+{% csrf_token %}
+<p><input type="submit" value="Add comment" class="btn btn-primary"></p>
+</form>
+{% endif %}
+
+<!-- share post -->
 <p>
-  <a href="{% url "blog:post_share" post.id %}">
+  <a href="{% url 'blog:post_share' post.id %}">
   Share this post
   </a>
 </p>
