@@ -45,7 +45,7 @@ def post_detail(request, year, month, day, post):
     except MyModel.DoesNotExist:
         raise Http404("No MyModel matches the given query.")
     """
-    post = get_object_or_404(Post, slug=post)
+    post = get_object_or_404(Post, slug=post, status='published', publish__year=year, publish__month=month, publish__day=day)
     comments = post.comments.filter(active=True)
     if request.method == 'POST':
         comment_form = CommentForm(request.POST)
@@ -56,9 +56,7 @@ def post_detail(request, year, month, day, post):
             new_comment.post = post
             # save the comment to the database
             new_comment.save()
-            # return redirect('post_detail')
-    else:
-        comment_form = CommentForm()
+    comment_form = CommentForm()
     return render(request, 'blog/post/detail.html', {'post': post, 'comments': comments, 'comment_form': comment_form})
 
 

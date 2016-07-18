@@ -7,8 +7,11 @@
 {% for post in posts %}
 <div class="well">
   <h2><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h2>
-  <small class="date" style="color: #777777">
+  <small class="date tags" style="color: #777777">
       Published {{ post.publish }} by {{ post.author }}
+      {% if post.tags.all|length > 1 %}
+      <i>, Tags: {{ post.tags.all|join:", " }}</i>
+      {% endif %}
   </small>
   <br/>
   <a href="{{ post.get_absolute_url }}">
