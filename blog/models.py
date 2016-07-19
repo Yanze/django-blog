@@ -39,7 +39,6 @@ class Post(models.Model):
                               default='draft')
 
     class meta:
-        # tells Django to sort results with descending order by default
         ordering = ('-publish',)
 
     def __str__(self):
