@@ -1,3 +1,4 @@
+{% load blog_tags %}
 {% load staticfiles %}
 <!-- load staticfiles tells Django to load the staticfiles template
       that are provided by the django contrib.staticfiles application.
@@ -22,7 +23,7 @@
         </div>
         <div id="sidebar" class="col-md-3 col-md-offset-1 well" style="margin-top: 69px;">
             <h2>My blog</h2>
-            <p>This is my blog.</p>
+            <p>This is my blog. I have {% total_posts %} postst so far.</p>
         </div>
       </div>
     </div>
