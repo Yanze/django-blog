@@ -1,10 +1,11 @@
-from django.shortcuts import render, get_object_or_404, HttpResponseRedirect, redirect
+from django.shortcuts import render, get_object_or_404, redirect
 from .models import Post, Comment
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.views.generic import ListView
+# from django.views.generic import ListView
 from .forms import EmailPostForm, CommentForm
 from django.core.mail import send_mail
 from taggit.models import Tag
+from django.db.models import Count
 
 # class PostListView(ListView):
 #     queryset = Post.published.all()
@@ -30,14 +31,19 @@ def post_list(request, tag_slug=None):
         posts = paginator.page(1)
     except EmptyPage:
         posts = paginator.page(paginator.num_pages)
-    return render(request, 'blog/post/list.html', {'posts': posts, 'tags': tag})
+    return render(request,
+                  'blog/post/list.html',
+                  {'posts': posts,
+                   'tags': tag})
 
 
 def post_detail(request, year, month, day, post):
     """
     get_object_or_404(klass, *args, **kwargs)
-    - klass: it can be a Model class, a Manager, or a querySet instance from which to get the object
-    - **kwargs: lookup parameters, which should be in the format accepted by get() and filter()
+    - klass: it can be a Model class, a Manager, or a querySet instance
+        from which to get the object
+    - **kwargs: lookup parameters, which should be in the format accepted
+        by get() and filter()
     - will return only one object
 
     EXAMPLLE:
@@ -50,7 +56,12 @@ def post_detail(request, year, month, day, post):
     except MyModel.DoesNotExist:
         raise Http404("No MyModel matches the given query.")
     """
-    post = get_object_or_404(Post, slug=post, status='published', publish__year=year, publish__month=month, publish__day=day)
+    post = get_object_or_404(Post,
+                             slug=post,
+                             status='published',
+                             publish__year=year,
+                             publish__month=month,
+                             publish__day=day)
     comments = post.comments.filter(active=True)
     if request.method == 'POST':
         comment_form = CommentForm(request.POST)
@@ -61,8 +72,23 @@ def post_detail(request, year, month, day, post):
             new_comment.post = post
             # save the comment to the database
             new_comment.save()
-    comment_form = CommentForm()
-    return render(request, 'blog/post/detail.html', {'post': post, 'comments': comments, 'comment_form': comment_form})
+            return redirect('/blog')
+    else:
+        comment_form = CommentForm()
+
+    # retrieve similar posts
+    post_tags_ids = post.tags.values_list('id', flat=True)
+    similar_posts = Post.published.filter(tags__in=post_tags_ids)\
+                                  .exclude(id=post.id)
+
+    similar_posts = similar_posts.annotate(same_tags=Count('tags'))\
+                                 .order_by('-same_tags', '-publish')[:4]
+    return render(request,
+                  'blog/post/detail.html',
+                  {'post': post,
+                   'comments': comments,
+                   'comment_form': comment_form,
+                   'similar_posts': similar_posts})
 
 
 def post_share(request, post_id):
@@ -71,7 +97,8 @@ def post_share(request, post_id):
     if request.method == 'POST':
         form = EmailPostForm(request.POST)
         if form.is_valid():
-            # form.cleaned_data is always invoked after .is_valid(), otherwise will raise AttributeError
+            # form.cleaned_data is always invoked after .is_valid(), otherwise
+            # will raise AttributeError
             cd = form.cleaned_data
             # then do something with data in cd
             post_url = request.build_absolute_uri(post.get_absolute_url())
@@ -81,4 +108,8 @@ def post_share(request, post_id):
             sent = True
     else:
         form = EmailPostForm()
-    return render(request, 'blog/post/share.html', {'post': post, 'form': form, 'sent': sent})
+    return render(request,
+                  'blog/post/share.html',
+                  {'post': post,
+                   'form': form,
+                   'sent': sent})
