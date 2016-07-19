@@ -1,31 +1,36 @@
 from django.shortcuts import render, get_object_or_404, HttpResponseRedirect, redirect
 from .models import Post, Comment
-# from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic import ListView
 from .forms import EmailPostForm, CommentForm
 from django.core.mail import send_mail
+from taggit.models import Tag
+
+# class PostListView(ListView):
+#     queryset = Post.published.all()
+#     context_object_name = 'posts'
+#     paginate_by = 3
+#     template_name = 'blog/post/list.html'
 
 
-class PostListView(ListView):
-    queryset = Post.published.all()
-    context_object_name = 'posts'
-    paginate_by = 3
-    template_name = 'blog/post/list.html'
+def post_list(request, tag_slug=None):
+    object_list = Post.published.all()
+    tag = None
 
+    if tag_slug:
+        tag = get_object_or_404(Tag, slug=tag_slug)
+        object_list = object_list.filter(tags__in=[tag])
 
-# def post_list(request):
-#     object_list = Post.published.all()
-#     paginator = Paginator(object_list, 1)  # posts in each page
-#     page = request.GET.get('page', 1)  # this indicate the current page number
-#     try:
-#         posts = paginator.page(page)  # obtain the object for the desired page by calling page() method
-#     except PageNotAnInteger:
-#         # if page is not an integer deliver the first page
-#         posts = paginator.page(1)
-#         # if the page is out of range deliver the last page of results
-#     except EmptyPage:
-#         posts = paginator.page(paginator.num_pages)
-#     return render(request, 'blog/post/list.html', {'posts': posts})
+    paginator = Paginator(object_list, 3)  # posts in each page
+    page = request.GET.get('page', 1)  # this indicate the current page number
+    try:
+        # obtain the object for the desired page by calling page() method
+        posts = paginator.page(page)
+    except PageNotAnInteger:
+        posts = paginator.page(1)
+    except EmptyPage:
+        posts = paginator.page(paginator.num_pages)
+    return render(request, 'blog/post/list.html', {'posts': posts, 'tags': tag})
 
 
 def post_detail(request, year, month, day, post):
