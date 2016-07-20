@@ -1,4 +1,5 @@
 {% extends "blog/base.html" %}
+{% load blog_tags %}
 {% block title %}{{ post.title }}{% endblock %}
 
 {% block content %}
@@ -10,7 +11,7 @@
   <hr/>
   <img src="{{post.img_link}}" style="width:320px;height:200px;">
 
-  <p style="margin-top:20px;">{{ post.body|linebreaks }}</p>
+  <p style="margin-top:20px;">{{ post.body|markdown }}</p>
 <br>
 <div class="well">
   <h4>Similar posts</h4>

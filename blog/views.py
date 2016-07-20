@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404, HttpResponseRedirect, redirect
 from .models import Post, Comment
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 # from django.views.generic import ListView
@@ -6,6 +6,7 @@ from .forms import EmailPostForm, CommentForm
 from django.core.mail import send_mail
 from taggit.models import Tag
 from django.db.models import Count
+import pdb
 
 # class PostListView(ListView):
 #     queryset = Post.published.all()
@@ -64,6 +65,7 @@ def post_detail(request, year, month, day, post):
                              publish__day=day)
     comments = post.comments.filter(active=True)
     if request.method == 'POST':
+        print(request.method)
         comment_form = CommentForm(request.POST)
         if comment_form.is_valid():
             # create comment object but don't save to database
@@ -72,9 +74,10 @@ def post_detail(request, year, month, day, post):
             new_comment.post = post
             # save the comment to the database
             new_comment.save()
-            return redirect('/blog')
+            return HttpResponseRedirect('post_detail')
     else:
-        comment_form = CommentForm()
+        print(request.method)
+        comment_form = CommentForm(request.GET)
 
     # retrieve similar posts
     post_tags_ids = post.tags.values_list('id', flat=True)

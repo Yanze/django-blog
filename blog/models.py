@@ -39,7 +39,7 @@ class Post(models.Model):
                               default='draft')
 
     class meta:
-        ordering = ('-publish',)
+        ordering = ('publish',)
 
     def __str__(self):
         # this is a default method human-readable representation of the object
