@@ -24,6 +24,7 @@
         <div id="sidebar" class="col-md-3 col-md-offset-1 well" style="margin-top: 69px;">
             <h2><a href="/blog">My blog</a></h2>
             <p>This is my blog. I have {% total_posts %} postst so far.</p>
+            <p><a href="{% url 'blog:post_feed' %}">Subscribe to my RSS feed</a></p>
         </div>
 
         <div class="col-md-3 col-md-offset-1 well">
@@ -41,7 +42,7 @@
             </li>
             {% endfor %}
           </ul>
-          <p><a href="{% url 'blog:post_feed' %}">Subscribe to my RSS feed</a></p>
+
         </div>
 
       </div>
