@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404, HttpResponseRedirect, redirect
+from django.shortcuts import render, get_object_or_404, redirect
 from .models import Post, Comment
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 # from django.views.generic import ListView
@@ -38,7 +38,7 @@ def post_list(request, tag_slug=None):
                    'tags': tag})
 
 
-def post_detail(request, year, month, day, post):
+def post_detail(request, year, month, day, slug):
     """
     get_object_or_404(klass, *args, **kwargs)
     - klass: it can be a Model class, a Manager, or a querySet instance
@@ -58,14 +58,15 @@ def post_detail(request, year, month, day, post):
         raise Http404("No MyModel matches the given query.")
     """
     post = get_object_or_404(Post,
-                             slug=post,
+                             slug=slug,
                              status='published',
                              publish__year=year,
                              publish__month=month,
                              publish__day=day)
     comments = post.comments.filter(active=True)
+
     if request.method == 'POST':
-        print(request.method)
+        # print(request.method)
         comment_form = CommentForm(request.POST)
         if comment_form.is_valid():
             # create comment object but don't save to database
@@ -74,10 +75,9 @@ def post_detail(request, year, month, day, post):
             new_comment.post = post
             # save the comment to the database
             new_comment.save()
-            return HttpResponseRedirect('post_detail')
+            return redirect(post.get_absolute_url())
     else:
-        print(request.method)
-        comment_form = CommentForm(request.GET)
+        comment_form = CommentForm()
 
     # retrieve similar posts
     post_tags_ids = post.tags.values_list('id', flat=True)
